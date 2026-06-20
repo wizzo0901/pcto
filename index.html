@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCTO Hub - I.S. V. Almanza - A. D'Ajetti</title>
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --primary: #38bdf8;
+            --primary-rgb: 56, 189, 248;
+            --glass-bg: rgba(15, 23, 42, 0.65);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --accent: #f43f5e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            transition: background 0.8s ease;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(var(--primary-rgb), 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(var(--primary-rgb), 0.08) 0px, transparent 50%);
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px 30px;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 30%, rgba(var(--primary-rgb), 1) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--muted);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .main-layout {
+            display: flex;
+            flex: 1;
+            max-width: 1500px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 30px 40px;
+            gap: 35px;
+        }
+
+        .sidebar {
+            width: 32%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-height: 75vh;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(var(--primary-rgb), 0.3); border-radius: 4px; }
+
+        .nav-card {
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 18px 22px;
+            border-radius: 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; height: 100%; width: 4px;
+            background: transparent;
+            transition: background 0.3s;
+        }
+
+        .nav-card:hover {
+            transform: translateX(8px) scale(1.02);
+            border-color: rgba(var(--primary-rgb), 0.4);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-card.active {
+            background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.15) 0%, var(--glass-bg) 100%);
+            border-color: rgba(var(--primary-rgb), 0.6);
+            box-shadow: 0 0 30px rgba(var(--primary-rgb), 0.15);
+        }
+
+        .nav-card.active::before {
+            background: rgba(var(--primary-rgb), 1);
+        }
+
+        .nav-card h4 {
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .nav-card span {
+            color: var(--muted);
+            font-size: 0.85rem;
+            display: block;
+        }
+
+        .content-container {
+            width: 68%;
+            position: relative;
+        }
+
+        .project-board {
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            padding: 40px;
+            min-height: 75vh;
+            display: none;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            animation: boardSpawn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        .project-board.active {
+            display: block;
+        }
+
+        .theme-icon-badge {
+            float: right;
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: rgba(var(--primary-rgb), 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: 1px solid rgba(var(--primary-rgb), 0.4);
+            box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.2);
+            animation: floatAnim 3s ease-in-out infinite;
+        }
+
+        .board-header {
+            margin-bottom: 35px;
+        }
+
+        .board-header h2 {
+            font-size: 2.2rem;
+            color: #fff;
+            margin-bottom: 6px;
+            font-weight: 800;
+        }
+
+        .board-header p {
+            color: rgba(var(--primary-rgb), 1);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .info-tile {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 16px 20px;
+            border-radius: 14px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.03);
+            transition: border 0.3s;
+        }
+
+        .info-tile:hover {
+            border-bottom-color: rgba(var(--primary-rgb), 0.6);
+        }
+
+        .info-tile label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-tile value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            display: block;
+        }
+
+        .section-slide {
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 4px solid rgba(var(--primary-rgb), 0.8);
+            border-radius: 0 16px 16px 0;
+            padding: 24px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .section-slide h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .text-content {
+            color: #e2e8f0;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        @keyframes boardSpawn {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes floatAnim {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout { flex-direction: column; }
+            .sidebar { width: 100%; max-height: 250px; }
+            .content-container { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>PCTO PORTFOLIO</h1>
+        <p id="sub-institute">I.S. "V. ALMANZA - A. D'AJETTI" • PANTELLERIA</p>
+    </header>
+
+    <div class="main-layout">
+        
+        <!-- SIDEBAR NAVIGAZIONE -->
+        <div class="sidebar">
+            <div class="nav-card" onclick="switchTheme(1, '#0e172c', '56, 189, 248')">
+                <h4>1. La biblioteca Umana</h4>
+                <span>Comune di Pantelleria • 18h</span>
+            </div>
+            <div class="nav-card" onclick="switchTheme(2, '#061f2d', '34, 211, 238')">
+                <h4>2. Next Generation WORK</h4>
+                <span>Datamind S.r.l. • 88h</span>
+            </div>
+            <div class="nav-card" onclick="switchTheme(3, '#052e16', '52, 211, 153')">
+                <h4>3. RESPIRE Palinologia</h4>
+                <span>Univ. Camerino • 15h</span>
+            </div>
+            <div class="nav-card" onclick="switchTheme(4, '#2d060e', 'fb7185')">
+                <h4>4. Cultura Antimafia</h4>
+                <span>ISOIS Omnicomprensivo • 30h</span>
+            </div>
+            <div class="nav-card" onclick="switchTheme(5, '#1e1b4b', '81, 83, 250')">
+                <h4>5. Crescere insieme</h4>
+                <span>Agorà Soc. Cooperativa • 25h</span>
+            </div>
+            <div class="nav-card" onclick="switchTheme(6, '#172554', '93, 133, 255')">
+                <h4>6. PNRR Intelligenza Artificiale</h4>
+                <span>I.S. V. Almanza • 16h</span>
+            </div>
+            <div class="nav-card active" onclick="switchTheme(7, '#1f1f1f', '156, 163, 175')">
+                <h4>7. Sicurezza sul Lavoro</h4>
+                <span>M.I.M. Ministero • 4h</span>
+            </div>
+        </div>
+
+        <!-- CONTENUTO DELLE SCHEDE -->
+        <div class="content-container">
+
+            <!-- SCHEDA 1 -->
+            <div id="panel-1" class="project-board">
+                <div class="theme-icon-badge">🏛</div>
+                <div class="board-header">
+                    <h2>La biblioteca Umana</h2>
+                    <p>Percorso N. 8026256 • Ente Pubblico</p>
+                </div>
+                <div class="info-grid">
+                    <div class="info-tile"><label>Struttura Ospitante</label><value>COMUNE DI PANTELLERIA</value></div>
+                    <div class="info-tile"><label>Periodo Attività</label><value>12/12/2023 - 18/12/2023</value></div>
+                    <div class="info-tile"><label>Durata Totale</label><value>18 Ore effettive</value></div>
+                    <div class="info-tile"><label>Sede Operativa</label><value>Castello di Pantelleria</value></div>
+                </div>
+                <div class="section-slide">
+                    <h3>📂 Attività Svolte (Descrizione e Modalità)</h3>
+                    <div class="text-content">
+                        L'attività è stata interamente incentrata sull'allestimento e l'esposizione al pubblico di una rassegna libraria all'interno della suggestiva cornice del <strong>Castello di Pantelleria</strong>. Nel ruolo di mediatore culturale e divulgatore, mi sono occupato della presentazione diretta al pubblico di un <strong>romanzo giallo-misterioso di un celebre autore francese</strong>.
+                    </div>
+                </div>
+                <div class="section-slide">
+                    <h3>🎯 Obiettivi Raggiunti, Aspetti Positivi e Criticità</h3>
+                    <div class="text-content">
+                        L'aspetto più stimolante di questa esperienza è stato poter sperimentare e affinare le mie doti comunicative ed espressive. Durante la lettura dei brani scelti, ho cercato di infondere la massima interpretazione drammatica, modulando la voce e la gestualità <strong>proprio come se fossi un attore sul palcoscenico</strong>. Questa modalità interpretativa mi ha permesso di catturare appieno l'attenzione del pubblico in sala, vincendo la timidezza e trasformando una semplice lettura in una vera e propria performance teatrale e interattiva.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHEDA 2 -->
+            <div id="panel-2" class="project-board">
+                <div class="theme-icon-badge">💻</div>
+                <div class="board-header">
+                    <h2>Next Generation WORK: Data Scientist</h2>
+                    <p>Percorso N. 8498840 • Impresa Informazione</p>
+                </div>
+                <div class="info-grid">
+                    <div class="info-tile"><label>Struttura Ospitante</label><value>DATAMIND S.R.L.</value></div>
+                    <div class="info-tile"><label>Periodo Attività</label><value>26/03/2024 - 30/06/2024</value></div>
+                    <div class="info-tile"><label>Durata Totale</label><value>88 Ore complessive</value></div>
+                    <div class="info-tile"><label>Tipologia Soggetto</label><value>Società Tecnologica Avanzata</value></div>
+                </div>
+                <div class="section-slide">
+                    <h3>📂 Attività Svolte (Descrizione e Modalità)</h3>
+                    <div class="text-content">
+                        Il percorso formativo è iniziato con una solida introduzione teorica riguardante l'architettura dei software e il funzionamento logico dei principali linguaggi di programmazione. Successivamente, siamo passati alle prime esercitazioni pratiche e test combinati utilizzando <strong>Microsoft Excel</strong> e il linguaggio <strong>Python</strong> per l'elaborazione dei dataset, senza tralasciare i concetti cardine della Data Analysis. Nella seconda fase, il corso si è ramificato in due macro-aree di specializzazione: la prima verticale sul ruolo del <strong>Data Analyst</strong>, mentre la seconda focalizzata sul <strong>Coding e sullo Sviluppo Web</strong>, dove abbiamo appreso le regole e la sintassi fondamentali per strutturare e programmare un sito web completo e funzionante tramite l'utilizzo combinato di <strong>HTML, CSS e JavaScript</strong>.
+                    </div>
+                </div>
+                <div class="section-slide">
+                    <h3>🎯 Obiettivi Raggiunti, Aspetti Positivi e Criticità</h3>
+                    <div class="text-content">
+                        Questo modulo da 88 ore mi ha consentito di acquisire una preziosa panoramica bivalente nel settore digital: da un lato la precisione analitica richiesta dalla manipolazione dei dati, dall'altro la creatività logica necessaria nel web design. Poter applicare subito i concetti di programmazione frontend (HTML/CSS/JS) ha reso il percorso interattivo, stimolante e fortemente orientato alle richieste del mercato tecnologico moderno.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHEDA 3 -->
+            <div id="panel-3" class="project-board">
+                <div class="theme-icon-badge">🔬</div>
+                <div class="board-header">
+                    <h2>RESPIRE Laboratorio di Palinologia</h2>
+                    <p>Percorso N. 10365488 • Ricerca Universitaria</p>
+                </div>
+                <div class="info-grid">
+                    <div class="info-tile"><label>Struttura Ospitante</label><value>UNIVERSITÀ DEGLI STUDI DI CAMERINO</value></div>
+                    <div class="info-tile"><label>Periodo Attività</label><value>10/02/2025 - 11/02/2025</value></div>
+                    <div class="info-tile"><label>Durata Totale</label><value>15 Ore intensive</value></div>
+                    <div class="info-tile"><label>Ambito Scientifico</label><value>Palinologia e Studio Ambientale</value></div>
+                </div>
+                <div class="section-slide">
+                    <h3>📂 Attività Svolte (Descrizione e Modalità)</h3>
+                    <div class="text-content">
+                        Il laboratorio intensivo, condotto in collaborazione con i ricercatori dell'Università di Camerino (UNICAM), si è focalizzato sulla mappatura scientifica e sull'<strong>analisi approfondita della biodiversità di Pantelleria a livello vegetale</strong>. Durante l'attività pratica, abbiamo esaminato la flora locale partendo da un punto di vista microscopico: attraverso il campionamento e lo studio palinologico delle spore e dei pollini delle piante native dell'isola, abbiamo analizzato la ricchezza, la distribuzione ed i tratti evolutivi unici dell'ecosistema botanico pantesco.
+                    </div>
+                </div>
+                <div class="section-slide">
+                    <h3>🎯 Obiettivi Raggiunti, Aspetti Positivi e Criticità</h3>
+                    <div class="text-content">
+                        Il percorso mi ha permesso di comprendere l'immenso valore naturalistico della biodiversità di Pantelleria e l'importanza della tutela ambientale. Lavorare a stretto contatto con strumentazioni e metodologie universitarie ha stimolato il mio interesse per l'indagine scientifica sul campo e la biologia ecologica, mostrandomi l'utilità pratica della ricerca accademica applicata al territorio.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHEDA 4 -->
+            <div id="panel-4" class="project-board">
+                <div class="theme-icon-badge">⚖️</div>
+                <div class="board-header">
+                    <h2>Rete cultura antimafia nelle scuole</h2>
+                    <p>Percorso N. 10991266 • Legalità e Cittadinanza</p>
+                </div>
+                <div class="info-grid">
+                    <div class="info-tile"><label>Struttura Ospitante</label><value>ISOIS ISTITUTO OMNICOMPRENSIVO</value></div>
+                    <div class="info-tile"><label>Periodo Attività</label><value>27/02/2025 - 27/05/2025</value></div>
+                    <div class="info-tile"><label>Durata Totale</label><value>30 Ore</value></div>
+                    <div class="info-tile"><label>Competenze Chiave</label><value>Cittadinanza, Costituzione e Legalità</value></div>
+                </div>
+                <div class="section-slide">
+                    <h3>📂 Attività Svolte (Descrizione e Modalità)</h3>
+                    <div class="text-content">
+                        Nell'ambito di questo progetto sulla legalità democratica, ho lavorato attivamente alla realizzazione e al <strong>montaggio di un video multimediale</strong> incentrato sulle figure di alcuni grandi eroi che hanno combattuto in prima linea la battaglia contro la mafia. Il lavoro ha richiesto la selezione di materiale d'archivio, immagini e testi storici per documentare la vita di uomini e donne dello Stato che hanno sacrificato e perso la vita in nome dei valori della giustizia e della verità.
+                    </div>
+                </div>
+                <div class="section-slide">
+                    <h3>🎯 Obiettivi Raggiunti, Aspetti Positivi e Criticità</h3>
+                    <div class="text-content">
+                        Questa esperienza ha avuto su di me un forte impatto formativo e umano. Ricercare e montare le sequenze video sulle storie di questi eroi mi ha spinto a riflettere profondamente sull'importanza della memoria storica e del coraggio civile. Mi ha aiutato a capire come l'impegno per la legalità debba partire dalle nostre azioni quotidiane, stimolando la mia coscienza civica e dandomi una forte spinta per <strong>crescere e diventare una persona migliore</strong>, più consapevole dei doveri verso la società.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHEDA 5 -->
+            <div id="panel-5" class="project-board">
+                <div class="theme-icon-badge">🤝</div>
+                <div class="board-header">
+                    <h2>Crescere insieme</h2>
+                    <p>Percorso N. 11228263 • Cooperazione Sociale</p>
+                </div>
+                <div class="info-grid">
+                    <div class="info-tile"><label>Struttura Ospitante</label><value>AGORÀ SOC. COOPERATIVA SOCIALE</value></div>
+                    <div class="info-tile"><label>Periodo Attività</label><value>31/03/2025 - 31/05/2025</value></div>
+                    <div class="info-tile"><label>Durata Totale</label><value>25 Ore</value></div>
+                    <div class="info-tile"><label>Ambito lavorativo</label><value>Terzo Settore / Sociale</value></div>
+                </div>
+                <div class="section-slide">
+                    <h3>📂 Attività Svolte (Descrizione e Modalità)</h3>
+                    <div class="text-content">
+                        Durante l'esperienza presso il centro gestito dalla Cooperativa Sociale Agorà, ho svolto attività di affiancamento educativo e supporto assistenziale rivolto a un gruppo di bambini. Nello specifico, mi sono occupato della gestione delle loro routine ricreative e relazionali, prestando particolare attenzione e sensibilità all'integrazione e al supporto mirato di <strong>alcuni bambini con disabilità</strong> presenti nella struttura.
+                    </div>
+                </div>
+                <div class="section-slide">
+                    <h3>🎯 Obiettivi Raggiunti, Aspetti Positivi e Criticità</h3>
+                    <div class="text-content">
+                        Questo percorso mi ha permesso di sviluppare una forte intelligenza emotiva, pazienza e spiccate competenze nell'ambito dell'inclusione sociale. Confrontarmi quotidianamente con la disabilità in tenera età è stata un'esperienza profondamente formativa che ha arricchito il mio bagaglio umano, insegnandomi l'importanza dell'ascolto non verbale, della personalizzazione dei giochi educativi e della solidarietà sociale all'interno del terzo settore.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHEDA 6 -->
+            <div id="panel-6" class="project-board">
+                <div class="theme-icon-badge">🤖</div>
+                <div class="board-header">
+                    <h2>PNRR Intelligenza Artificiale</h2>
+                    <p>Percorso N. 11315230 • Laboratorio Tecnologico</p>
+                </div>
+                <div class="info-grid">
+                    <div class="info-tile"><label>Struttura Ospitante</label><value>ISTITUTO SUPERIORE V. ALMANZA</value></div>
+                    <div class="info-tile"><label>Periodo Attività</label><value>05/05/2025 - 26/06/2025</value></div>
+                    <div class="info-tile"><label>Durata Totale</label><value>16 Ore</value></div>
+                    <div class="info-tile"><label>Ambito Progetto</label><value>Finanziamenti PNRR Scuola Digitale</value></div>
+                </div>
+                <div class="section-slide">
+                    <h3>📂 Attività Svolte (Descrizione e Modalità)</h3>
+                    <div class="text-content">
+                        Il modulo si è focalizzato sullo studio teorico e sulle applicazioni pratiche dei moderni sistemi di Intelligenza Artificiale. Nel corso dei laboratori abbiamo analizzato non solo il funzionamento di questi modelli matematici avanzati, ma soprattutto le metodologie di interazione utili a comprendere <strong>sia come utilizzarli concretamente, sia come sfruttarli al meglio per massimizzare le nostre personali abilità</strong> creative e di studio.
+                    </div>
+                </div>
+                <div class="section-slide">
+                    <h3>🎯 Obiettivi Raggiunti, Aspetti Positivi e Criticità</h3>
+                    <div class="text-content">
+                        Questo percorso mi ha offerto una prospettiva critica ed equilibrata sulle nuove tecnologie. Ho compreso che l'Intelligenza Artificiale non deve essere considerata un sostituto delle nostre facoltà intellettive, bensì <strong>un assistente digitale che ci supporta nel diventare più veloci e nel massimizzare le nostre potenzialità</strong>. Saper governare questi strumenti in modo consapevole rappresenta una competenza trasversale indispensabile per ottimizzare i flussi di lavoro futuri.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHEDA 7 - COMPLETATA E PULITA -->
+            <div id="panel-7" class="project-board active">
+                <div class="theme-icon-badge">⚠️</div>
+                <div class="board-header">
+                    <h2>PCTO Sicurezza sui luoghi di lavoro</h2>
+                    <p>Percorso N. 8705723 • Formazione Obbligatoria</p>
+                </div>
+                <div class="info-grid">
+                    <div class="info-tile"><label>Struttura Ospitante</label><value>MINISTERO DELL'ISTRUZIONE E MERITO</value></div>
+                    <div class="info-tile"><label>Periodo Attività</label><value>18/09/2023 - 09/06/2024</value></div>
+                    <div class="info-tile"><label>Durata Totale</label><value>4 Ore</value></div>
+                    <div class="info-tile"><label>Ambito</label><value>Prevenzione e Sicurezza D.Lgs 81/08</value></div>
+                </div>
+                <div class="section-slide">
+                    <h3>📂 Attività Svolte (Descrizione e Modalità)</h3>
+                    <div class="text-content">
+                        Il percorso formativo ha previsto lo studio e l'approfondimento in modalità e-learning dei moduli standard ministeriali relativi alla normativa sulla salute e sicurezza nei luoghi di lavoro (D.Lgs. 81/08). I contenuti hanno affrontato i concetti cardine di rischio, danno, prevenzione e protezione all'interno degli ambienti lavorativi, analizzando l'organigramma della sicurezza aziendale e le procedure di emergenza ed evacuazione.
+                    </div>
+                </div>
+                <div class="section-slide">
+                    <h3>🎯 Obiettivi Raggiunti, Aspetti Positivi e Criticità</h3>
+                    <div class="text-content">
+                        Il modulo mi ha permesso di assimilare una solida consapevolezza circa i diritti e i doveri di ogni lavoratore in tema di tutela della salute fisica e mentale. Comprendere l'importanza della prevenzione dei rischi e il corretto utilizzo dei dispositivi di protezione individuale rappresenta un prerequisito fondamentale e di alto valore civico per l'inserimento sicuro e responsabile in qualunque futuro contesto professionale.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function switchTheme(index, bgHex, primaryRgb) {
+            document.documentElement.style.setProperty('--bg-dark', bgHex);
+            document.documentElement.style.setProperty('--primary-rgb', primaryRgb);
+
+            document.querySelectorAll('.nav-card').forEach(card => card.classList.remove('active'));
+            document.querySelectorAll('.nav-card')[index - 1].classList.add('active');
+
+            document.querySelectorAll('.project-board').forEach(board => board.classList.remove('active'));
+            document.getElementById('panel-' + index).classList.add('active');
+        }
+    </script>
+</body>
+</html>
